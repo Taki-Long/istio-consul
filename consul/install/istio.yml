@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  pilot-consul:
+    image: consul:1.5.1
+    networks:
+      istiomesh:
+          aliases:
+            - istio-pilot
+    command: consul agent -data-dir "consul/data" -retry-join consul-server1 -retry-join consul-server2 -retry-join consul-server3
+    ports:
+      - "8081:15007"
+
+  pilot:
+    image: docker.io/istio/pilot:1.1.7
+    network_mode: service:pilot-consul
+    command: ["discovery",
+              "--httpAddr", ":15007",
+              "--registries", "Consul",
+              "--consulserverURL", "http://127.0.0.1:8500",
+              "--kubeconfig", "/etc/istio/config/kubeconfig",
+              "--secureGrpcAddr", "",
+              ]
+    volumes:
+      - ./kubeconfig:/etc/istio/config/kubeconfig
+
+  zipkin:
+    image: docker.io/openzipkin/zipkin:2.7
+    networks:
+      istiomesh:
+    ports:
+      - "9411:9411"
+
+networks:
+  istiomesh:
+    external:
+      name: consul_istiomesh
