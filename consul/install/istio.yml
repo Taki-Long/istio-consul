@@ -28,8 +28,6 @@ services:
     image: docker.io/openzipkin/zipkin:2.7
     networks:
       istiomesh:
-    ports:
-      - "9411:9411"
 
 networks:
   istiomesh:

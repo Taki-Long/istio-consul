@@ -24,8 +24,6 @@ services:
     volumes:
     - ./server.hcl:/consul/config/server.hcl
     command: consul agent -data-dir "consul/data" -config-dir "consul/config" -bootstrap-expect 3 -retry-join "consul-server1"
-    ports:
-    - 8501:8500
 
   consul-server3:
     image: consul:1.5.1
@@ -37,8 +35,6 @@ services:
     volumes:
     - ./server.hcl:/consul/config/server.hcl
     command: consul agent -data-dir "consul/data" -config-dir "consul/config" -bootstrap-expect 3 -retry-join "consul-server1"
-    ports:
-    - 8502:8500
 
   etcd:
     image: quay.io/coreos/etcd:latest
