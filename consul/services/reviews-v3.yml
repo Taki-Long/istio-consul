@@ -15,8 +15,8 @@
 ############################################################################
 version: '3.7'
 services:
-  reviews-v1:
-    image: istio/examples-bookinfo-reviews-v1:1.14.0
+  reviews-v3:
+    image: istio/examples-bookinfo-reviews-v3:1.14.0
     networks:
       istiomesh:
     dns:
@@ -25,20 +25,20 @@ services:
     dns_search:
         - service.consul
 
-  reviews-v1-consul:
+  reviews-v3-consul:
     image: consul:1.5.1
-    network_mode: "service:reviews-v1"
+    network_mode: "service:reviews-v3"
     environment:
       - CONSUL_ALLOW_PRIVILEGED_PORTS=
     volumes:
-      - ./reviews-v1.hcl:/consul/config/config.hcl
+      - ./reviews-v3.hcl:/consul/config/config.hcl
     command: consul agent -data-dir "consul/data" -config-dir "consul/config" -retry-join consul-server1 -retry-join consul-server2 -retry-join consul-server3
 
-  reviews-v1-init:
+  reviews-v3-init:
     image: docker.io/istio/proxy_init:1.1.7
     cap_add:
       - NET_ADMIN
-    network_mode: "service:reviews-v1"
+    network_mode: "service:reviews-v3"
     command:
       - -p
       - "15001"
@@ -51,14 +51,14 @@ services:
       - -b
       - "9080"
     
-  reviews-v1-sidecar:
+  reviews-v3-sidecar:
     image: docker.io/istio/proxy_debug:1.1.7
-    network_mode: "service:reviews-v1"
+    network_mode: "service:reviews-v3"
     entrypoint:
       - su
       - istio-proxy
       - -c
-      - "/usr/local/bin/pilot-agent proxy  --serviceregistry Consul --serviceCluster reviews-v1 --zipkinAddress zipkin:9411 --configPath /var/lib/istio >/tmp/envoy.log"
+      - "/usr/local/bin/pilot-agent proxy  --serviceregistry Consul --serviceCluster reviews-v3 --zipkinAddress zipkin:9411 --configPath /var/lib/istio >/tmp/envoy.log"
 
 networks:
   istiomesh:

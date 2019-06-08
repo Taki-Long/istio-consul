@@ -2,8 +2,7 @@ ports {
   dns = 53
 }
 services {
-  id = "reviews_v1"
-  name = "reviews"
+  name = "ratings"
   port = 9080
   tags = ["version|v1"]
   meta {

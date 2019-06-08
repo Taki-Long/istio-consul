@@ -1,11 +1,10 @@
-version: '3'
+version: '3.7'
 services:
 
   consul-server1:
     image: consul:1.5.1
     networks:
       istiomesh:
-         ipv4_address: 172.28.0.101
     environment:
       - CONSUL_ALLOW_PRIVILEGED_PORTS=
     volumes:
@@ -18,7 +17,6 @@ services:
     image: consul:1.5.1
     networks:
       istiomesh:
-       ipv4_address: 172.28.0.102
     environment:
       - CONSUL_ALLOW_PRIVILEGED_PORTS=
     volumes:
@@ -29,7 +27,6 @@ services:
     image: consul:1.5.1
     networks:
       istiomesh:
-        ipv4_address: 172.28.0.103
     environment:
       - CONSUL_ALLOW_PRIVILEGED_PORTS=
     volumes:
@@ -46,6 +43,8 @@ services:
     image: k8s.gcr.io/kube-apiserver-amd64:v1.10.11
     networks:
       istiomesh:
+        aliases:
+          - apiserver
     ports:
       - "8080:8080"
     privileged: true
@@ -54,6 +53,7 @@ services:
 
 networks:
   istiomesh:
+    name: consul_istiomesh
     ipam:
       driver: default
       config:

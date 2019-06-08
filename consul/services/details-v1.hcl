@@ -1,6 +1,5 @@
 ports {
   dns = 53
-  grpc = 8502
 }
 services {
   name = "details"

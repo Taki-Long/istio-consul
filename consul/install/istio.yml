@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   pilot-consul:
@@ -20,6 +20,8 @@ services:
               "--consulserverURL", "http://127.0.0.1:8500",
               "--kubeconfig", "/etc/istio/config/kubeconfig",
               "--secureGrpcAddr", "",
+              "--log_target","/tmp/pilot.log",
+              "--log_output_level","default:debug"
               ]
     volumes:
       - ./kubeconfig:/etc/istio/config/kubeconfig
@@ -28,6 +30,8 @@ services:
     image: docker.io/openzipkin/zipkin:2.7
     networks:
       istiomesh:
+    ports:
+      - "9411:9411"
 
 networks:
   istiomesh:
