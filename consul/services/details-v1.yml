@@ -21,7 +21,6 @@ services:
       istiomesh:
     dns:
       - 127.0.0.1
-      - 8.8.8.8
     dns_search:
         - service.consul
 
@@ -58,7 +57,7 @@ services:
       - su
       - istio-proxy
       - -c
-      - "/usr/local/bin/pilot-agent proxy --serviceregistry Consul --serviceCluster details-v1 --zipkinAddress zipkin:9411 --configPath /var/lib/istio >/tmp/envoy.log"
+      - "/usr/local/bin/pilot-agent proxy --proxyLogLevel debug --serviceregistry Consul --serviceCluster details-v1 --zipkinAddress zipkin:9411 --configPath /var/lib/istio >/tmp/envoy.log"
 
 networks:
   istiomesh:

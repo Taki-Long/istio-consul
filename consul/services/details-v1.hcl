@@ -4,7 +4,7 @@ ports {
 services {
   name = "details"
   port = 9080
-  tags = ["version|v1"]
+  tags = ["version|v1","app|details"]
   meta {
       protocol = "http"
   }
