@@ -52,7 +52,7 @@ services:
       - "9080"
     
   reviews-v3-sidecar:
-    image: docker.io/istio/proxy_debug:1.1.7
+    image: docker.io/istio/proxyv2:1.1.7
     network_mode: "service:reviews-v3"
     entrypoint:
       - su

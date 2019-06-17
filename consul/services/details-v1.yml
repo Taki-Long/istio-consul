@@ -21,6 +21,7 @@ services:
       istiomesh:
     dns:
       - 127.0.0.1
+      - ${DNS_SERVER}
     dns_search:
         - service.consul
 
@@ -51,7 +52,7 @@ services:
       - "9080"
     
   details-v1-sidecar:
-    image: docker.io/istio/proxy_debug:1.1.7
+    image: docker.io/istio/proxyv2:1.1.7
     network_mode: "service:details-v1"
     entrypoint:
       - su

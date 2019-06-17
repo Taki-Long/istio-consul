@@ -55,7 +55,7 @@ services:
       - "9080"
     
   productpage-v1-sidecar:
-    image: docker.io/istio/proxy_debug:1.1.7
+    image: docker.io/istio/proxyv2:1.1.7
     network_mode: "service:productpage-v1"
     entrypoint:
       - su
