@@ -3,7 +3,12 @@ version: '3.7'
 services:
   pilot-consul:
     image: consul:1.5.1
-    command: consul agent -data-dir "consul/data" {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }}
+    network_mode: bridge
+    volumes:
+        - ./config.hcl:/consul/config/config.hcl
+    command: consul agent -data-dir "consul/data" -config-dir "consul/config"  {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }}
+    ports:
+        - "9411:9411"
 
   pilot:
     image: docker.io/istio/pilot:1.1.7
@@ -22,5 +27,4 @@ services:
 
   zipkin:
     image: docker.io/openzipkin/zipkin:2.7
-    ports:
-      - "9411:9411"
+    network_mode: service:pilot-consul

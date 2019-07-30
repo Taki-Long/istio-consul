@@ -13,6 +13,7 @@
     service_version: v1
     service_image: istio/examples-bookinfo-productpage-v1:1.14.0
     service_port: 9080
+    service_port_mapping: 9080
   roles:
     - { role: service }
 

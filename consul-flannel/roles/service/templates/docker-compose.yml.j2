@@ -21,7 +21,11 @@ services:
     dns:
       - 127.0.0.1
     dns_search:
-        - service.consul
+      - service.consul
+{% if service_port_mapping is defined %}
+    ports:
+      - "{{ service_port }}:{{service_port_mapping}}"
+{% endif %}
 
   {{ service_name }}-consul:
     image: consul:1.5.1
@@ -56,4 +60,4 @@ services:
       - su
       - istio-proxy
       - -c
-      - "/usr/local/bin/pilot-agent proxy --proxyLogLevel debug --serviceregistry Consul --serviceCluster {{ service_name }} --zipkinAddress zipkin:9411 --configPath /var/lib/istio >/tmp/envoy.log"
+      - "/usr/local/bin/pilot-agent proxy --proxyLogLevel debug --serviceregistry Consul --serviceCluster {{ service_name }} --zipkinAddress istio-pilot:9411 --configPath /var/lib/istio >/tmp/envoy.log"

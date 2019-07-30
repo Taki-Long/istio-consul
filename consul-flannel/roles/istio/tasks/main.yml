@@ -7,6 +7,10 @@
     src: kubeconfig.j2
 
 - template:
+    dest: istio/config.hcl
+    src: config.hcl.j2
+
+- template:
     dest: istio/docker-compose.yml
     src: docker-compose.yml.j2
 

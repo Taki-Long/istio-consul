@@ -1,1 +1,2 @@
 .vagrant
+consul-flannel/inventory/vagrant_ansible_inventory
