@@ -1,0 +1,48 @@
+---
+- file: path=/etc/systemd/system/docker.service.d state=directory mode=0755
+  become: true
+
+- template:
+    dest: /etc/systemd/system/docker.service.d/http-proxy.conf
+    src: http-proxy.conf.j2
+    force: yes
+  become: true
+
+- debug:
+    msg: "{{ lookup('ini','FLANNEL_SUBNET type=properties file=/tmp/flannel-subnet-' + inventory_hostname )}}"
+  become: yes
+
+- name: set up flannel env
+  when: docker_flannel_env is defined
+  block:
+  - fetch:
+      src: "{{docker_flannel_env}}"
+      dest: /tmp/flannel-subnet-{{ inventory_hostname }}
+      flat: yes
+
+  - set_fact:
+      flannel_config_yaml: |
+        bip: {{ lookup('ini','FLANNEL_SUBNET type=properties file=/tmp/flannel-subnet-' + inventory_hostname )}}
+        mtu: {{ lookup('ini','FLANNEL_MTU type=properties file=/tmp/flannel-subnet-' + inventory_hostname ) | int }}
+        ip-masq: {{ lookup('ini','FLANNEL_IPMASQ type=properties file=/tmp/flannel-subnet-' + inventory_hostname ) | bool }}
+
+  - set_fact:
+      docker_daemon_config: "{{ docker_daemon_config | combine( flannel_config_yaml|from_yaml )}}"
+    # with_items:
+    #   - { name: "bip", value: "{{ lookup('ini','FLANNEL_SUBNET type=properties file=/tmp/flannel-subnet-' + inventory_hostname )}}"}
+    #   - { name: "mtu", value: "{{ lookup('ini','FLANNEL_MTU type=properties file=/tmp/flannel-subnet-' + inventory_hostname ) | int }}"}
+    #   - { name: "ip-masq", value: "{{ lookup('ini','FLANNEL_IPMASQ type=properties file=/tmp/flannel-subnet-' + inventory_hostname ) | bool }}"}
+      
+- copy:
+    dest: /etc/docker/daemon.json 
+    force: yes 
+    content: "{{ docker_daemon_config | to_nice_json }}"
+    mode: 655
+  become: true
+
+- systemd:
+    daemon_reload: true
+  become: true
+
+- command: systemctl restart docker
+  become: true

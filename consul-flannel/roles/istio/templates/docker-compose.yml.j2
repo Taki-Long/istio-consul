@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  pilot-consul:
+    image: consul:1.5.1
+    command: consul agent -data-dir "consul/data" {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }}
+
+  pilot:
+    image: docker.io/istio/pilot:1.1.7
+    network_mode: service:pilot-consul
+    command: ["discovery",
+              "--httpAddr", ":15007",
+              "--registries", "Consul",
+              "--consulserverURL", "http://127.0.0.1:8500",
+              "--kubeconfig", "/etc/istio/config/kubeconfig",
+              "--secureGrpcAddr", "",
+              "--log_target","/tmp/pilot.log",
+              "--log_output_level","default:debug"
+              ]
+    volumes:
+      - ./kubeconfig:/etc/istio/config/kubeconfig
+
+  zipkin:
+    image: docker.io/openzipkin/zipkin:2.7
+    ports:
+      - "9411:9411"

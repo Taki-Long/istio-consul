@@ -1,0 +1,35 @@
+- hosts: etcd
+  roles:
+    - { role: andrewrothstein.etcd-cluster }
+  environment: "{{ proxy_env }}"
+
+- hosts: all
+  roles:
+    - { role: geerlingguy.docker}
+  become: true
+
+- hosts: all
+  roles:
+    - { role: flannel }
+  environment: "{{ proxy_env }}"
+
+- hosts: all
+  roles:
+    - { role: docker-config }
+  environment: "{{ proxy_env }}"
+
+- hosts: consul-cluster
+  roles:
+    - { role: consul }
+  environment: "{{ proxy_env }}"
+
+- hosts: apiserver
+  roles:
+    - { role: apiserver }
+  environment: "{{ proxy_env }}"
+
+- hosts: istio
+  roles:
+    - { role: istio }
+  environment: "{{ proxy_env }}"
+  

@@ -1,0 +1,6 @@
+version: '3.7'
+services:
+  istio-apiserver:
+    image: k8s.gcr.io/kube-apiserver-amd64:v1.10.11
+    network_mode: "host"
+    command: ["kube-apiserver", "--etcd-servers", "{{ apiserver_etcd_servers }}", "--service-cluster-ip-range", "10.99.0.0/16", "--insecure-port", "8080", "-v", "2", "--insecure-bind-address", "0.0.0.0"]

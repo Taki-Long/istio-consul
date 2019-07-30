@@ -1,0 +1,17 @@
+---
+- name: Create target directory
+  file: path=consul state=directory mode=0755
+
+- template:
+    dest: consul/server.hcl
+    src: server.hcl.j2
+    force: yes 
+
+- template:
+    dest: consul/docker-compose.yml
+    src: docker-compose.yml.j2
+    force: yes
+
+- command: docker-compose -f consul/docker-compose.yml down
+
+- command: docker-compose -f consul/docker-compose.yml up -d

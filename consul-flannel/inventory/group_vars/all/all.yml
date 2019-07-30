@@ -1,0 +1,27 @@
+docker_users: [ vagrant ]
+network_interface: eth1
+proxy_env:
+  http_proxy: http://172.17.8.1:1087
+  https_proxy: http://172.17.8.1:1087
+  no_proxy: localhost,127.0.0.1
+docker_http_proxy: http://172.17.8.1:1087
+docker_https_proxy: http://172.17.8.1:1087
+docker_no_proxy: localhost,127.0.0.1,.aliyuncs.com
+docker_daemon_config:
+  registry-mirrors: ["https://mc0qivbl.mirror.aliyuncs.com"]
+docker_service_state: stopped
+docker_flannel_env: /run/flannel/subnet.env
+etcd_secure: false
+etcd_use_ips: true
+etcd_network_iface: eth1
+etcd_cluster_name: consul-flannel
+
+flannel_network:
+  Network: "10.5.0.0/16"
+  Backend: 
+    Type: "vxlan"
+
+flannel_config: | 
+  FLANNELD_IFACE=eth1
+
+
