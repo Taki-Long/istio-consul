@@ -6,5 +6,5 @@ services:
       - CONSUL_ALLOW_PRIVILEGED_PORTS=
     volumes:
     - ./server.hcl:/consul/config/server.hcl
-    command: consul agent -data-dir "consul/data" -config-dir "consul/config" -bootstrap-expect 3 {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }} -log-level debug
+    command: consul agent -data-dir "consul/data" -config-dir "consul/config" -bootstrap-expect 3 {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }}
     network_mode: "host"
