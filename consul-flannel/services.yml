@@ -1,0 +1,56 @@
+- hosts: node-1
+  vars:
+    service_name: details
+    service_version: v1
+    service_image: istio/examples-bookinfo-details-v1:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+- hosts: node-1
+  vars:
+    service_name: productpage
+    service_version: v1
+    service_image: istio/examples-bookinfo-productpage-v1:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+- hosts: node-2
+  vars:
+    service_name: ratings
+    service_version: v1
+    service_image: istio/examples-bookinfo-ratings-v1:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+- hosts: node-2
+  vars:
+    service_name: reviews
+    service_version: v1
+    service_image: istio/examples-bookinfo-reviews-v1:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+- hosts: node-3
+  vars:
+    service_name: reviews
+    service_version: v2
+    service_image: istio/examples-bookinfo-reviews-v2:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+- hosts: node-3
+  vars:
+    service_name: reviews
+    service_version: v3
+    service_image: istio/examples-bookinfo-reviews-v3:1.14.0
+    service_port: 9080
+  roles:
+    - { role: service }
+
+
+  

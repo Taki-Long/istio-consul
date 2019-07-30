@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
                 config.vm.provision :ansible do |ansible|
                     # Disable default limit to connect to all the machines
                     ansible.limit = "all"
-                    ansible.playbook = "playbook.yml"
+                    ansible.playbook = "platform.yml"
                     ansible.verbose = "v"
                     ansible.host_vars = host_vars
                     ansible.groups = {
@@ -60,7 +60,7 @@ Vagrant.configure("2") do |config|
                         "etcd-master" => ["#{$instance_name_prefix}-[1:3]"],
                         "apiserver" => ["#{$instance_name_prefix}-1"],
                         "consul-cluster" => ["#{$instance_name_prefix}-[1:3]"],
-                        "istio" => ["#{$instance_name_prefix}-1"],
+                        "istio" => ["#{$instance_name_prefix}-1"]
                     }
                 end
             end

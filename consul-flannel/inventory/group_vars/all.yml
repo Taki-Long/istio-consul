@@ -23,5 +23,3 @@ flannel_network:
 
 flannel_config: | 
   FLANNELD_IFACE=eth1
-
-
