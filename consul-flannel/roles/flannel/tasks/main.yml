@@ -2,7 +2,7 @@
 - name: check for flannel installation
   become: yes
   stat:
-    path: '{{ flannel_install_dir }}'
+    path: '{{ flannel_install_dir }}/flanneld'
   changed_when: false
   register: flannel_binary
 - when: not flannel_binary.stat.exists
@@ -71,9 +71,9 @@
     content: "{{ flannel_config }}"
     dest: /etc/systemd/system/flannel.service.d/flannel.conf
 
-# - name: set flannel network
-#   command: etcdctl set "{{ flannel_etcd_prefix }}" " {{ flannel_network | to_json}}' "
-#   run_once: true
+- name: set flannel network
+  command: etcdctl set "{{ flannel_etcd_prefix }}" '{{ flannel_network | to_json}}'
+  run_once: true
 
 - name: reload daemon
   become: yes

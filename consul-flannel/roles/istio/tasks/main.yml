@@ -6,6 +6,11 @@
     dest: istio/kubeconfig
     src: kubeconfig.j2
 
+- fetch:
+    src: istio/kubeconfig
+    dest: admin.conf
+    flat: yes
+
 - template:
     dest: istio/config.hcl
     src: config.hcl.j2
