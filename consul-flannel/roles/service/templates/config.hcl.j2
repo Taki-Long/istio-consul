@@ -1,0 +1,11 @@
+ports {
+  dns = 53
+}
+services {
+  name = "{{service_name}}"
+  port = {{service_port}}
+  tags = ["version|{{service_version}}","app|{{service_name}}"]
+  meta {
+      protocol = "http"
+  }
+}

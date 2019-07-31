@@ -1,0 +1,24 @@
+---
+- name: Create target directory
+  file: path=istio state=directory mode=0755
+
+- template:
+    dest: istio/kubeconfig
+    src: kubeconfig.j2
+
+- fetch:
+    src: istio/kubeconfig
+    dest: admin.conf
+    flat: yes
+
+- template:
+    dest: istio/config.hcl
+    src: config.hcl.j2
+
+- template:
+    dest: istio/docker-compose.yml
+    src: docker-compose.yml.j2
+
+- command: docker-compose -f istio/docker-compose.yml down
+
+- command: docker-compose -f istio/docker-compose.yml up -d

@@ -1,0 +1,3 @@
+.vagrant
+venv
+consul-flannel/inventory/vagrant_ansible_inventory

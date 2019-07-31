@@ -1,0 +1,16 @@
+[Unit]
+Description=Flanneld
+Documentation=https://github.com/coreos/flannel
+After=network.target
+Before=docker.service
+
+[Service]
+EnvironmentFile=/etc/systemd/system/flannel.service.d/flannel.conf
+User=root
+ExecStart={{ flannel_parent_install_dir }}/bin/flanneld
+Restart=on-failure
+Type=notify
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

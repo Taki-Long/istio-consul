@@ -1,0 +1,90 @@
+---
+- name: check for flannel installation
+  become: yes
+  stat:
+    path: '{{ flannel_install_dir }}/flanneld'
+  changed_when: false
+  register: flannel_binary
+- when: not flannel_binary.stat.exists
+  block:
+    - name: make install dir...
+      become: yes
+      become_user: root
+      file:
+        path: '{{ flannel_install_dir }}'
+        state: directory
+        mode: 0755
+    - name: download flannel archive...
+      become: yes
+      become_user: root
+      get_url:
+        url: '{{ flannel_tgz_url }}'
+        dest: /tmp/{{ flannel_tgz }}
+        mode: 0644
+        timeout: '{{ flannel_download_timeout_seconds }}'
+        checksum: '{{ flannel_checksum }}'
+    - name: unarchive...
+      become: yes
+      become_user: root
+      unarchive:
+        remote_src: yes
+        src: /tmp/{{ flannel_tgz }}
+        dest: '{{ flannel_install_dir }}'
+        creates: '{{ flannel_install_dir }}/flanneld'
+  always:
+    - name: cleanup...
+      become: yes
+      become_user: root
+      file:
+        path: /tmp/{{ flannel_tgz }}
+        state: absent
+
+- name: link binaries...
+  become: yes
+  become_user: root
+  with_items:
+    - flanneld
+    - mk-docker-opts.sh
+  file:
+    src: '{{ flannel_install_dir }}/{{ item }}'
+    dest: '{{ flannel_parent_install_dir }}/bin/{{ item }}'
+    state: link
+
+- name: create flannel service
+  become: yes
+  become_user: root
+  template:
+    src: flannel.service.j2
+    dest: /etc/systemd/system/flannel.service
+
+- name: Ensure flannel service dir exists.
+  become: yes
+  become_user: root
+  file:
+    path: /etc/systemd/system/flannel.service.d
+    state: directory
+
+- name: create flannel conf
+  become: yes
+  become_user: root
+  copy:
+    content: "{{ flannel_config }}"
+    dest: /etc/systemd/system/flannel.service.d/flannel.conf
+
+- name: set flannel network
+  command: etcdctl set "{{ flannel_etcd_prefix }}" '{{ flannel_network | to_json}}'
+  run_once: true
+
+- name: reload daemon
+  become: yes
+  become_user: root
+  systemd:
+    daemon_reload: yes
+
+- name: flannel service
+  become: yes
+  become_user: root
+  service:
+      name: flannel
+      enabled: yes 
+      state: restarted 

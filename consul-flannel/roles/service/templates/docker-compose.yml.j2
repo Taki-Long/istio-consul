@@ -1,0 +1,63 @@
+# Copyright 2017 Istio Authors
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+############################################################################
+version: '3.7'
+services:
+  {{ service_name }}:
+    image: {{ service_image }}
+    network_mode: bridge
+    dns:
+      - 127.0.0.1
+    dns_search:
+      - service.consul
+{% if service_port_mapping is defined %}
+    ports:
+      - "{{ service_port }}:{{service_port_mapping}}"
+{% endif %}
+
+  {{ service_name }}-consul:
+    image: consul:1.5.1
+    network_mode: "service:{{ service_name }}"
+    environment:
+      - CONSUL_ALLOW_PRIVILEGED_PORTS=
+    volumes:
+      - ./config.hcl:/consul/config/config.hcl
+    command: consul agent -data-dir "consul/data" -config-dir "consul/config" {{ groups['consul-cluster'] | map('extract', hostvars, ['ip']) | map('regex_replace', '^(.*)$','-retry-join \\1') | join(' ') }}
+
+  {{ service_name }}-init:
+    image: docker.io/istio/proxy_init:1.1.7
+    cap_add:
+      - NET_ADMIN
+    network_mode: "service:{{ service_name }}"
+    command:
+      - -p
+      - "15001"
+      - -u
+      - "1337,100"
+      - -m
+      - REDIRECT
+      - -i
+      - "*"
+      - -b
+      - "9080"
+    
+  {{ service_name }}-sidecar:
+    image: docker.io/istio/proxyv2:1.1.7
+    network_mode: "service:{{ service_name }}"
+    entrypoint:
+      - su
+      - istio-proxy
+      - -c
+      - "/usr/local/bin/pilot-agent proxy --proxyLogLevel debug --serviceregistry Consul --serviceCluster {{ service_name }} --zipkinAddress istio-pilot:9411 --configPath /var/lib/istio >/tmp/envoy.log"

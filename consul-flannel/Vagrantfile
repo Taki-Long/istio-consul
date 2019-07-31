@@ -1,0 +1,70 @@
+CONFIG = File.join(File.dirname(__FILE__), "config.rb")
+
+# Defaults for config options defined in CONFIG
+$num_instances = 3
+$instance_name_prefix = "node"
+$vm_memory = 1024
+$vm_cpus = 1
+
+def vm_memory
+    $vb_memory.nil? ? $vm_memory : $vb_memory
+end
+
+def vm_cpus
+    $vb_cpus.nil? ? $vm_cpus : $vb_cpus
+end
+
+if File.exist?(CONFIG)
+    require CONFIG
+end
+
+$inventory = File.absolute_path("inventory", File.dirname(__FILE__))
+$vagrant_ansible = File.join(File.dirname(__FILE__), ".vagrant", "provisioners", "ansible")
+FileUtils.mkdir_p($vagrant_ansible) if ! File.exist?($vagrant_ansible)
+if ! File.exist?(File.join($vagrant_ansible,"inventory"))
+    FileUtils.ln_s($inventory, File.join($vagrant_ansible,"inventory"))
+end
+
+Vagrant.configure("2") do |config|
+    # always use Vagrants insecure key
+    config.ssh.insert_key = false
+    # forward ssh agent to easily ssh into the different machines
+    config.ssh.forward_agent = true
+
+    config.vm.box = "bento/centos-7.6"
+
+    host_vars = {}
+
+    (1..$num_instances).each do |i|
+        config.vm.define vm_name = "%s-%d" % [$instance_name_prefix, i] do |config|
+            config.vm.hostname = vm_name
+            config.vm.provider :virtualbox do |vb|
+                vb.memory = vm_memory
+                vb.cpus = vm_cpus
+            end
+            ip = "172.17.8.#{i+100}"
+            config.vm.network :private_network, ip: ip
+
+            host_vars[vm_name] = {
+                "ip": ip
+            }
+
+            if i == $num_instances
+                config.vm.provision :ansible do |ansible|
+                    # Disable default limit to connect to all the machines
+                    ansible.limit = "all"
+                    ansible.playbook = "platform.yml"
+                    ansible.verbose = "v"
+                    ansible.host_vars = host_vars
+                    ansible.groups = {
+                        "etcd" => ["#{$instance_name_prefix}-[1:3]"],
+                        "etcd-master" => ["#{$instance_name_prefix}-[1:3]"],
+                        "apiserver" => ["#{$instance_name_prefix}-1"],
+                        "consul-cluster" => ["#{$instance_name_prefix}-[1:3]"],
+                        "istio" => ["#{$instance_name_prefix}-1"]
+                    }
+                end
+            end
+        end
+    end
+end

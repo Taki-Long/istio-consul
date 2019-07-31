@@ -1,0 +1,25 @@
+---
+- name: service dir
+  set_fact:
+    service_dir: "istio-service/{{ service_name }}-{{service_version}}"
+  tags: always
+
+- name: Create target directory
+  file: path={{ service_dir }} state=directory mode=0755
+  tags: always
+
+- template:
+    dest: "{{ service_dir }}/config.hcl"
+    src: config.hcl.j2
+  tags: always
+
+- template:
+    dest: "{{ service_dir }}/docker-compose.yml"
+    src: docker-compose.yml.j2
+  tags: always
+
+- command: docker-compose -f {{ service_dir }}/docker-compose.yml down
+  tags: stop
+
+- command: docker-compose -f {{ service_dir }}/docker-compose.yml up -d
+  tags: start
