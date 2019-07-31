@@ -4,6 +4,6 @@
 cd consul
 ./startup.sh
 
-##Demo for istio with consul and flanneld (three instance created by vagrant)
+## Demo for istio with consul and flanneld (three instance created by vagrant)
 cd consul-flannel
 ./startup.sh
